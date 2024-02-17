@@ -91,6 +91,9 @@ public class List {
      if (current == null){
          return false;
      }
+     if(prev == null){
+         first = current.next;
+     }
      else{
          prev.next = current.next;
      }
