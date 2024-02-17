@@ -43,7 +43,7 @@ public class List {
             s += current.cp.toString() + " ";
             current = current.next;
         }
-      return s + ")";
+      return s.substring(0, s.length() - 1) + ")";
     }
 
     /** Returns the index of the first CharData object in this list
