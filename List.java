@@ -107,7 +107,7 @@ public class List {
       }
       else {
           Node current = first;
-          for (int i = 0; i < index; i++) {
+          for (int i = 0; i < index - 1; i++) {
               current = current.next;
           }
           return current.cp;
