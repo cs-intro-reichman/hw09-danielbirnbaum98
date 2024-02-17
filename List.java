@@ -102,7 +102,7 @@ public class List {
      *  If the index is negative or is greater than the size of this list, 
      *  throws an IndexOutOfBoundsException. */
     public CharData get(int index) {
-      if (index < 0 || index > size){
+      if (index < 0 || index > size || size == 0){
           throw new IndexOutOfBoundsException();
       }
       else {
