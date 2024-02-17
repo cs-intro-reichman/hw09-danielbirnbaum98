@@ -105,11 +105,17 @@ public class List {
       if (index < 0 || index > size){
           throw new IndexOutOfBoundsException();
       }
-      Node current = first;
-        for (int i = 0; i < index - 1; i++) {
-            current = current.next;
-        }
-        return current.cp;
+      if (index == 0){
+          return first.cp;
+      }
+      else {
+          Node current = first;
+          for (int i = 0; i < index - 1; i++) {
+              current = current.next;
+          }
+          return current.cp;
+      }
+
     }
 
     /** Returns an array of CharData objects, containing all the CharData objects in this list. */
