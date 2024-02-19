@@ -1,5 +1,7 @@
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class LanguageModel {
 
@@ -33,29 +35,74 @@ public class LanguageModel {
 
     /** Builds a language model from the text in the given file (the corpus). */
 	public void train(String fileName) {
-		// Your code goes here
+        String window = "";
+        char character;
+        In in = new In(fileName);
+        for (int i = 0; i < windowLength; i++) {
+            window = window + in.readChar();
+        }
+        while (!(in.isEmpty())) {
+            character = in.readChar();
+            if (CharDataMap.containsKey(window)) {
+                CharDataMap.get(window).update(character);
+            }
+            else{
+                List lst = new List();
+                CharDataMap.put(window, lst);
+                lst.update(character);
+            }
+            window = window.substring(1) + character;
+        }
+        for (List probs : CharDataMap.values())
+            calculateProbabilities(probs);
 	}
-
-    // Computes and sets the probabilities (p and cp fields) of all the
-	// characters in the given list. */
-	public void calculateProbabilities(List probs) {				
-		// Your code goes here
+	public void calculateProbabilities(List probs) {
+      Node pointer = probs.getFirst();
+      int numOfChars = 0;
+      while (pointer != null){
+          numOfChars = numOfChars + pointer.cp.count;
+          pointer = pointer.next;
+      }
+      pointer = probs.getFirst();
+      pointer.cp.p = (double)(pointer.cp.count) / numOfChars;
+      pointer.cp.cp = pointer.cp.p;
+      while (pointer.next != null){
+          pointer.next.cp.p = (double)(pointer.next.cp.count) / numOfChars;
+          pointer.next.cp.cp = pointer.next.cp.p + pointer.cp.cp;
+          pointer = pointer.next;
+      }
 	}
 
     // Returns a random character from the given probabilities list.
 	public char getRandomChar(List probs) {
-		// Your code goes here
+        Double rnd = randomGenerator.nextDouble();
+        Node pointer = probs.getFirst();
+        while (pointer != null){
+            if (pointer.cp.cp >= rnd){
+                return  pointer.cp.chr;
+            }
+            pointer = pointer.next;
+        }
+        return  ' ';
 	}
 
     /**
-	 * Generates a random text, based on the probabilities that were learned during training. 
+	 * Generates a random text, based on the probabilities that were learned during training.
 	 * @param initialText - text to start with. If initialText's last substring of size numberOfLetters
-	 * doesn't appear as a key in Map, we generate no text and return only the initial text. 
+	 * doesn't appear as a key in Map, we generate no text and return only the initial text.
 	 * @param numberOfLetters - the size of text to generate
 	 * @return the generated text
 	 */
 	public String generate(String initialText, int textLength) {
-		// Your code goes here
+	    if (initialText.length() < windowLength || !(CharDataMap.containsKey(initialText.substring(initialText.length() - windowLength)))){
+            return  initialText;
+        }
+        String str = initialText;
+        while (str.length() <= textLength + initialText.length() - 1){
+            List probs = CharDataMap.get(str.substring(str.length() - windowLength));
+            str = str + getRandomChar(probs);
+        }
+        return str;
 	}
 
     /** Returns a string representing the map of this language model. */
