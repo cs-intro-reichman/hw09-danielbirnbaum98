@@ -23,8 +23,8 @@ public class List {
     }
 
     /** Returns the first element in the list */
-    public Node getFirst() {
-        return first;
+    public CharData getFirst() {
+        return first.cp;
     }
 
     /** GIVE Adds a CharData object with the given character to the beginning of this list. */
