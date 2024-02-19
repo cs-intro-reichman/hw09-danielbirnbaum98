@@ -1,7 +1,6 @@
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.Random;
-import java.util.ArrayList;
 
 public class LanguageModel {
 
@@ -57,33 +56,37 @@ public class LanguageModel {
             calculateProbabilities(probs);
 	}
 	public void calculateProbabilities(List probs) {
-      Node pointer = probs.getFirst();
       int numOfChars = 0;
-      while (pointer != null){
-          numOfChars = numOfChars + pointer.cp.count;
-          pointer = pointer.next;
+      for (int i = 0; i < probs.getSize(); i++){
+          numOfChars = numOfChars + probs.get(i).count;
       }
-      pointer = probs.getFirst();
-      pointer.cp.p = (double)(pointer.cp.count) / numOfChars;
-      pointer.cp.cp = pointer.cp.p;
-      while (pointer.next != null){
-          pointer.next.cp.p = (double)(pointer.next.cp.count) / numOfChars;
-          pointer.next.cp.cp = pointer.next.cp.p + pointer.cp.cp;
-          pointer = pointer.next;
-      }
+      CharData first = probs.get(0);
+      Double firstP = first.count / (double)numOfChars;
+      first.p = firstP;
+      first.cp = firstP;
+
+      CharData prev = first;
+      CharData current = null;
+        for (int i = 0; i < probs.getSize(); i++) {
+         current = probs.get(i);
+         double p = current.count / (double)numOfChars;
+         current.p = p;
+         current.cp = prev.cp + p;
+         prev = current;
+        }
 	}
 
     // Returns a random character from the given probabilities list.
 	public char getRandomChar(List probs) {
-        Double rnd = randomGenerator.nextDouble();
-        Node pointer = probs.getFirst();
-        while (pointer != null){
-            if (pointer.cp.cp >= rnd){
-                return  pointer.cp.chr;
+    double rnd = randomGenerator.nextDouble();
+    int listSize = probs.getSize();
+        for (int i = 0; i < listSize; i++) {
+            CharData currentCharData = probs.get(i);
+            if (currentCharData.cp > rnd) {
+                return  currentCharData.chr;
             }
-            pointer = pointer.next;
         }
-        return  ' ';
+        return probs.get(listSize - 1).chr;
 	}
 
     /**
@@ -94,15 +97,23 @@ public class LanguageModel {
 	 * @return the generated text
 	 */
 	public String generate(String initialText, int textLength) {
-	    if (initialText.length() < windowLength || !(CharDataMap.containsKey(initialText.substring(initialText.length() - windowLength)))){
-            return  initialText;
+        if (initialText.length() < windowLength){
+            return initialText;
         }
-        String str = initialText;
-        while (str.length() <= textLength + initialText.length() - 1){
-            List probs = CharDataMap.get(str.substring(str.length() - windowLength));
-            str = str + getRandomChar(probs);
+        String window = initialText.substring(initialText.length() - windowLength);
+        String genText = window;
+        for (int i = 0; i < textLength; i++) {
+            List probs = CharDataMap.get(window);
+            if(probs != null){
+                char newChr = getRandomChar(probs);
+                genText = genText + newChr;
+                window = genText.substring(genText.length() - windowLength);
+            }
+            else {
+                return genText;
+            }
         }
-        return str;
+        return genText;
 	}
 
     /** Returns a string representing the map of this language model. */
