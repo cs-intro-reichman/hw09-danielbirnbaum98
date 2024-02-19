@@ -42,15 +42,14 @@ public class LanguageModel {
         }
         while (!(in.isEmpty())) {
             character = in.readChar();
-            if (CharDataMap.containsKey(window)) {
-                CharDataMap.get(window).update(character);
+            List probs = CharDataMap.get(window);
+            if (probs == null){
+                probs = new List();
+                CharDataMap.put(window, probs);
             }
-            else{
-                List lst = new List();
-                CharDataMap.put(window, lst);
-                lst.update(character);
-            }
-            window = window.substring(1) + character;
+            probs.update(character);
+            window = window + character;
+            window = window.substring(1);
         }
         for (List probs : CharDataMap.values())
             calculateProbabilities(probs);
