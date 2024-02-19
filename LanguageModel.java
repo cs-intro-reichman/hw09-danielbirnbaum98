@@ -66,7 +66,7 @@ public class LanguageModel {
 
       CharData prev = first;
       CharData current = null;
-        for (int i = 0; i < probs.getSize(); i++) {
+        for (int i = 1; i < probs.getSize(); i++) {
          current = probs.get(i);
          double p = current.count / (double)numOfChars;
          current.p = p;
